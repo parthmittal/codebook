@@ -168,29 +168,8 @@ solution is unique iff the rank of the matrix equals the number of variables.
 \subsection{Eulerian path} % Andre Hahn Pereira
 \lstinputlisting[language=c++]{eulerian.cpp}
 
-\subsection{Lowest Common Ancestor (Pseudocode)} % Jacob Plachta
-Tarjan's offline algorithm (requires $O(N)$ disjoint set operations).
-\begin{lstlisting}
-function TarjanOLCA(u)
-    MakeSet(u);
-    u.ancestor := u;
-    for each v in u.children do
-        TarjanOLCA(v);
-        Union(u,v);
-        Find(u).ancestor := u;
-    u.colour := black;
-    for each v such that {u,v} in P do
-        if v.colour == black
-            print "Tarjan's Least Common Ancestor of " + u +
-                " and " + v + " is " + Find(v).ancestor + ".";
-\end{lstlisting}
-This function is called on the root of the tree. The set P of pairs of nodes to
-query must be specified in advance. Each node is initially white, and is
-colored black after it and all its children have been visited. The lowest
-common ancestor of the pair {u,v} is available as Find(v).ancestor immediately
-(and only immediately) after u is colored black, provided v is already black.
-Otherwise, it will be available later as Find(u).ancestor, immediately after v
-is colored black.
+\subsection{Heavy Light Decomposition} %Anudeep Nekanti
+\lstinputlisting[language=c++]{hld.cpp}
 
 \section{Data Structures}
 
@@ -289,9 +268,6 @@ for each token:
 
 \subsection{Bignums (C++, slow)} % Brian Bi
 \lstinputlisting[language=c++]{bignum.cpp}
-
-\subsection{All nearest smaller values} % Brian Bi
-\lstinputlisting[language=c++]{ansv.cpp}
 
 \subsection{Longest palindromic substring} % Brian Bi
 \lstinputlisting[language=c++]{manacher.cpp}
