@@ -168,8 +168,16 @@ solution is unique iff the rank of the matrix equals the number of variables.
 \subsection{Eulerian path} % Andre Hahn Pereira
 \lstinputlisting[language=c++]{eulerian.cpp}
 
-\subsection{Heavy Light Decomposition} %Anudeep Nekanti
-\lstinputlisting[language=c++]{hld.cpp}
+\subsection{Heavy Light Decomposition(pseudocode)} %Anudeep Nekanti
+\begin{lstlisting}
+HLD(curNode, Chain):
+Add curNode to curChain
+If curNode is LeafNode: return                    //Nothing left to do
+sc := child node with maximum sub-tree size       //sc is the special child
+HLD(sc, Chain)                                    //Extend current chain to special child
+for each child node cn of curNode:                //For normal childs
+if cn != sc: HLD(cn, newChain)                //As told above, for each normal child, a new chain starts
+\end{lstlisting}
 
 \section{Data Structures}
 
