@@ -1,5 +1,5 @@
 % Compiled and edited by Brian Bi
-\documentclass[9pt]{extarticle}
+\documentclass[11pt]{extarticle}
 \setlength{\parindent}{0.0in}
 \usepackage{amsmath}
 \usepackage{multicol}
@@ -106,6 +106,13 @@ For a polygon with all vertices on lattice points, $A = i + b/2 - 1$, where $A$
 is the area, $i$ is the number of lattice points strictly within the polygon,
 and $b$ is the number of lattice points on the boundary of the polygon. (Note,
 there is no generalization to higher dimensions)
+
+\subsection{Generating Functions cheatsheet (Text)} % Parth Mittal
+\begin{align*}
+    \sum_{n \geq 0} \binom{c + n - 1}{n}z^n &= \frac1{(1 - z)^c}\\
+    \sum_{n \geq 1} \frac1nz^n &= \ln\frac1{(1 - z)}\\
+    \sum_{n \geq 0} \frac1{n\,!}z^n &= e^z
+\end{align*}
 
 \section{Math Algorithms}
 
@@ -293,7 +300,6 @@ for each token:
 \subsection{Template}
 \lstinputlisting[language=c++]{template.cpp}
 \subsection{vimrc}
-To use the \verb|CPT| function, you want to place \verb|template.cpp| as \verb|~/.vim/templates/CP.cpp|.
 \lstinputlisting{vimrc}
 
 \end{multicols*}
