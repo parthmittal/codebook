@@ -1,78 +1,113 @@
-// Dinic's blocking flow algorithm
+// Adjacency list implementation of Dinic's blocking flow algorithm.
+// This is very fast in practice, and only loses to push-relabel flow.
+//
 // Running time:
-// * general networks: O(|V|^2 |E|)
-// * unit capacity networks: O(E min(V^(2/3), E^(1/2)))
-// * bipartite matching networks: O(E sqrt(V))
+//     O(|V|^2 |E|)
+//
+// INPUT:
+//     - graph, constructed using AddEdge()
+//     - source and sink
+//
+// OUTPUT:
+//     - maximum flow value
+//     - To obtain actual flow values, look at edges with capacity > 0
+//       (zero capacity edges are residual edges).
 
-const int INF = 2000000000;
+#include<cstdio>
+#include<vector>
+#include<queue>
+using namespace std;
+typedef long long LL;
 
 struct Edge {
-  int from, to, cap, flow, index;
-  Edge(int from, int to, int cap, int flow, int index) :
-    from(from), to(to), cap(cap), flow(flow), index(index) {}
+  int u, v;
+  LL cap, flow;
+  Edge() {}
+  Edge(int u, int v, LL cap): u(u), v(v), cap(cap), flow(0) {}
 };
 
 struct Dinic {
   int N;
-  vector<vector<Edge> > G;
-  vector<Edge *> dad;
-  vector<int> Q;
+  vector<Edge> E;
+  vector<vector<int>> g;
+  vector<int> d, pt;
   
-  // N = number of vertices
-  Dinic(int N) : N(N), G(N), dad(N), Q(N) {}
-  
-  // Add an edge to initially empty network. from, to are 0-based
-  void AddEdge(int from, int to, int cap) {
-    G[from].push_back(Edge(from, to, cap, 0, G[to].size()));
-    if (from == to) G[from].back().index++;
-    G[to].push_back(Edge(to, from, 0, 0, G[from].size() - 1));
+  Dinic(int N): N(N), E(0), g(N), d(N), pt(N) {}
+
+  void AddEdge(int u, int v, LL cap) {
+    if (u != v) {
+      E.emplace_back(Edge(u, v, cap));
+      g[u].emplace_back(E.size() - 1);
+      E.emplace_back(Edge(v, u, 0));
+      g[v].emplace_back(E.size() - 1);
+    }
   }
 
-  long long BlockingFlow(int s, int t) {
-    fill(dad.begin(), dad.end(), (Edge *) NULL);
-    dad[s] = &G[0][0] - 1;
-    
-    int head = 0, tail = 0;
-    Q[tail++] = s;
-    while (head < tail) {
-      int x = Q[head++];
-      for (int i = 0; i < G[x].size(); i++) {
-        Edge &e = G[x][i];
-        if (!dad[e.to] && e.cap - e.flow > 0) {
-          dad[e.to] = &G[x][i];
-          Q[tail++] = e.to;
+  bool BFS(int S, int T) {
+    queue<int> q({S});
+    fill(d.begin(), d.end(), N + 1);
+    d[S] = 0;
+    while(!q.empty()) {
+      int u = q.front(); q.pop();
+      if (u == T) break;
+      for (int k: g[u]) {
+        Edge &e = E[k];
+        if (e.flow < e.cap && d[e.v] > d[e.u] + 1) {
+          d[e.v] = d[e.u] + 1;
+          q.emplace(e.v);
         }
       }
     }
-    if (!dad[t]) return 0;
-
-    long long totflow = 0;
-    for (int i = 0; i < G[t].size(); i++) {
-      Edge *start = &G[G[t][i].to][G[t][i].index];
-      int amt = INF;
-      for (Edge *e = start; amt && e != dad[s]; e = dad[e->from]) {
-        if (!e) { amt = 0; break; }
-        amt = min(amt, e->cap - e->flow);
-      }
-      if (amt == 0) continue;
-      for (Edge *e = start; amt && e != dad[s]; e = dad[e->from]) {
-        e->flow += amt;
-        G[e->to][e->index].flow -= amt;
-      }
-      totflow += amt;
-    }
-    return totflow;
+    return d[T] != N + 1;
   }
 
-  // Call this to get the max flow. s, t are 0-based.
-  // Note, you can only call this once.
-  // To obtain the actual flow values, look at all edges with
-  // capacity > 0 (zero capacity edges are residual edges).
+  LL DFS(int u, int T, LL flow = -1) {
+    if (u == T || flow == 0) return flow;
+    for (int &i = pt[u]; i < g[u].size(); ++i) {
+      Edge &e = E[g[u][i]];
+      Edge &oe = E[g[u][i]^1];
+      if (d[e.v] == d[e.u] + 1) {
+        LL amt = e.cap - e.flow;
+        if (flow != -1 && amt > flow) amt = flow;
+        if (LL pushed = DFS(e.v, T, amt)) {
+          e.flow += pushed;
+          oe.flow -= pushed;
+          return pushed;
+        }
+      }
+    }
+    return 0;
+  }
 
-  long long GetMaxFlow(int s, int t) {
-    long long totflow = 0;
-    while (long long flow = BlockingFlow(s, t))
-      totflow += flow;
-    return totflow;
+  LL MaxFlow(int S, int T) {
+    LL total = 0;
+    while (BFS(S, T)) {
+      fill(pt.begin(), pt.end(), 0);
+      while (LL flow = DFS(S, T))
+        total += flow;
+    }
+    return total;
   }
 };
+
+// BEGIN CUT
+// The following code solves SPOJ problem #4110: Fast Maximum Flow (FASTFLOW)
+
+int main()
+{
+  int N, E;
+  scanf("%d%d", &N, &E);
+  Dinic dinic(N);
+  for(int i = 0; i < E; i++)
+  {
+    int u, v;
+    LL cap;
+    scanf("%d%d%lld", &u, &v, &cap);
+    dinic.AddEdge(u - 1, v - 1, cap);
+    dinic.AddEdge(v - 1, u - 1, cap);
+  }
+  printf("%lld\n", dinic.MaxFlow(0, N - 1));
+  return 0;
+}
+
+// END CUT
