@@ -147,6 +147,12 @@ solution is unique iff the rank of the matrix equals the number of variables.
 \subsection{Fast Fourier transform (FFT)} % Stanford
 \lstinputlisting[language=c++]{fft.cpp}
 
+\subsection{Number Theoretic Transform (NTT)}
+This is just some primes and generators.
+Implementation should be similar to FFT, like if you have $p = N \times k + 1$,
+and the generator $g$ for $Z_p^*$ , then use $g^k$ as an $N^\texttt{th}$ root of unity.
+\input{generators}
+
 \subsection{Simplex algorithm} % Stanford
 \lstinputlisting[language=c++]{simplex.cpp}
 
