@@ -1,14 +1,3 @@
-#include <vector>
-#include <functional>
-#include <queue>
-
-using namespace std;
-
-typedef long double ld;
-typedef long long ll;
-typedef pair <int, int> pii;
-typedef pair <ll, ll> pll;
-
 struct edge_t {
 	int u, v;
 	ll cap, cost;
@@ -24,7 +13,7 @@ struct mcmf_t {
 
 	vector<ll> pot;
 
-	mcmf(int N)
+	mcmf_t(int N)
 		: adj(N) {}
 	void add_edge(int u, int v, ll cap, ll cost, int id = -1)
 	{
@@ -52,10 +41,10 @@ struct mcmf_t {
 	}
 
 	/* call this once, it return
-	 * < min(max_flow, target_flow), cost >
+	 * < max_flow, cost >
 	 * runtime: O(VE + FE*log(E)),
 	 * where F is max_flow */
-	pair<ll, ll> min_cost_max_flow(int source, int sink, ll target_flow = inf)
+	pair<ll, ll> min_cost_max_flow(int source, int sink)
 	{
 		pot = BellmanFord(source);
 		int N = adj.size();
@@ -63,7 +52,7 @@ struct mcmf_t {
 
 		ll flow = 0;
 		ll cost = 0;
-		while(target_flow - flow > 0) {
+		while(flow < inf) {
 			vector<ll> d(N, inf);
 			vector<int> edge_index(N, -1);
 			vector<int> popped(N);
@@ -103,7 +92,7 @@ struct mcmf_t {
 					}
 				}
 				/* first compute the amount of flow we can send */
-				ll aug_flow = target_flow - flow;
+				ll aug_flow = inf;
 				for (int u = sink; u != source; ) {
 					const auto &e = edges[edge_index[u]];
 					aug_flow = min(aug_flow, e.cap);
